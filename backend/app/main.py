@@ -1,5 +1,8 @@
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
+
 from backend.app.core.database import engine, Base
+from backend.app.api.v1.auth import router as auth_router
 from backend.app.api.v1.users import router as users_router
 
 app = FastAPI(
@@ -11,10 +14,15 @@ app = FastAPI(
 
 @app.on_event("startup")
 def on_startup():
-    # Cria as tabelas no SQLite
     Base.metadata.create_all(bind=engine)
 
-# Inclui rotas de usuário
+# Rota raiz para documentação
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse(url="/docs")
+
+# Inclui routers
+app.include_router(auth_router)
 app.include_router(users_router)
 
 @app.get("/health", tags=["Health"])
