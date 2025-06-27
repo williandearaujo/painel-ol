@@ -1,16 +1,14 @@
-from fastapi import FastAPI
+ from fastapi import FastAPI
++from app.core.database import engine, Base
++
+ app = FastAPI(...)
 
-app = FastAPI(
-    title="Painel OL Tecnologia API",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
-)
+-@app.get("/health", tags=["Health"])
++@app.on_event("startup")
++def on_startup():
++    # Cria as tabelas no SQLite
++    Base.metadata.create_all(bind=engine)
 
-@app.get("/health", tags=["Health"])
-def health_check():
-    """
-    Health check endpoint.
-    Deve retornar {"status":"ok"} se o servidor estiver online.
-    """
-    return {"status": "ok"}
++@app.get("/health", tags=["Health"])
+ def health_check():
+     return {"status": "ok"}
