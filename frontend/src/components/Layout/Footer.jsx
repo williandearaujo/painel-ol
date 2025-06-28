@@ -1,10 +1,7 @@
-// src/components/layout/Footer.jsx
-import React from "react";
-
 export default function Footer() {
   return (
-    <footer className="p-4 bg-white border-t text-center text-sm">
-      © {new Date().getFullYear()} OL Tecnologia. Todos os direitos reservados.
+    <footer className="border-t px-6 py-2 text-xs text-muted-foreground text-center bg-background">
+      © 2025 OL Tecnologia. Todos os direitos reservados.
     </footer>
-  );
+  )
 }

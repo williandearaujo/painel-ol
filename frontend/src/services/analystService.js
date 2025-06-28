@@ -1,16 +1,9 @@
-// src/services/analystService.js
-import API from "./api";
+import api from "./api"
 
-export async function fetchAnalysts() {
-  const resp = await API.get("/analysts");
-  return resp.data;
-}
-
-export async function createAnalyst(analyst) {
-  const resp = await API.post("/analysts", analyst);
-  return resp.data;
-}
-
-export async function deleteAnalyst(id) {
-  await API.delete(`/analysts/${id}`);
+export const analystService = {
+  getAll: () => api.get("/analysts").then(res => res.data),
+  getById: (id) => api.get(`/analysts/${id}`).then(res => res.data),
+  create: (data) => api.post("/analysts", data).then(res => res.data),
+  update: (id, data) => api.put(`/analysts/${id}`, data).then(res => res.data),
+  remove: (id) => api.delete(`/analysts/${id}`).then(res => res.data),
 }
