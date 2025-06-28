@@ -1,4 +1,4 @@
-# backend/app/api/v1/auth.py
+# backend/app/api/v1/auth.js
 
 from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
