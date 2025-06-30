@@ -1,83 +1,113 @@
-// frontend/src/components/layout/Sidebar.jsx
-import React from "react";
-import { NavLink } from "react-router-dom";
+
+import React, { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   Home, Users, ClipboardList, CheckSquare, Truck, Box,
-  Link as LinkIcon, Phone, FileText, BarChart2, BellOff, Award
+  Link as LinkIcon, Phone, FileText, BarChart2, Bell, Award,
+  ChevronLeft, ChevronRight
 } from "lucide-react";
 
 export default function Sidebar() {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const location = useLocation();
+  const isDashboard = location.pathname === "/dashboard";
+
+  // Auto-expand on dashboard, allow manual toggle on other pages
+  const shouldExpand = isDashboard || isExpanded;
+
   const linkClass = ({ isActive }) =>
-    `flex items-center p-2 rounded hover:bg-gray-100 ${
-      isActive ? "bg-gray-200" : ""
-    }`;
+    `flex items-center p-3 mx-2 rounded-lg transition-all duration-200 ${
+      isActive 
+        ? "bg-blue-600 text-white shadow-md" 
+        : "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+    } ${!shouldExpand ? "justify-center" : ""}`;
+
+  const menuItems = [
+    { path: "/dashboard", icon: Home, label: "Dashboard" },
+    { path: "/clients", icon: Users, label: "Clientes" },
+    { path: "/analysts", icon: ClipboardList, label: "Analistas" },
+    { path: "/tasks", icon: CheckSquare, label: "Tarefas" },
+    { path: "/suppliers", icon: Truck, label: "Fornecedores" },
+    { path: "/equipment", icon: Box, label: "Equipamentos" },
+    { path: "/certifications", icon: Award, label: "Certificações" },
+    { path: "/links", icon: LinkIcon, label: "Links" },
+    { path: "/contacts", icon: Phone, label: "Contatos" },
+    { path: "/reports", icon: BarChart2, label: "Relatórios" },
+  ];
+
+  const comingSoonItems = [
+    { icon: FileText, label: "Chamados" },
+    { icon: FileText, label: "Projetos" },
+  ];
 
   return (
-    <aside className="w-64 bg-white border-r flex flex-col">
-      <nav className="flex-1 flex flex-col p-4 space-y-2">
-        <NavLink to="/dashboard" className={linkClass}>
-          <Home className="mr-2" /> Dashboard
-        </NavLink>
-
-        <NavLink to="/clients" className={linkClass}>
-          <Users className="mr-2" /> Clientes
-        </NavLink>
-
-        <NavLink to="/analysts" className={linkClass}>
-          <ClipboardList className="mr-2" /> Analistas
-        </NavLink>
-
-        <NavLink to="/tasks" className={linkClass}>
-          <CheckSquare className="mr-2" /> Tarefas
-        </NavLink>
-
-        <NavLink to="/suppliers" className={linkClass}>
-          <Truck className="mr-2" /> Fornecedores
-        </NavLink>
-
-        <NavLink to="/equipment" className={linkClass}>
-          <Box className="mr-2" /> Equipamentos
-        </NavLink>
-
-        <NavLink to="/certifications" className={linkClass}>
-          <Award className="mr-2" /> Certificações
-        </NavLink>
-
-        <NavLink to="/links" className={linkClass}>
-          <LinkIcon className="mr-2" /> Links
-        </NavLink>
-
-        {/* Futuro: Chamados e Projetos */}
-        <div className="pt-4 border-t border-gray-200 text-sm text-gray-400 uppercase px-2">
-          Em breve
-        </div>
-        <div className="flex flex-col space-y-2 px-2">
-          <button disabled className="flex items-center p-2 opacity-50 cursor-not-allowed">
-            <FileText className="mr-2" /> Chamados
-          </button>
-          <button disabled className="flex items-center p-2 opacity-50 cursor-not-allowed">
-            <FileText className="mr-2" /> Projetos
+    <aside 
+      className={`bg-white border-r border-gray-200 flex flex-col transition-all duration-300 ${
+        shouldExpanded ? "w-64" : "w-16"
+      }`}
+      onMouseEnter={() => !isDashboard && setIsExpanded(true)}
+      onMouseLeave={() => !isDashboard && setIsExpanded(false)}
+    >
+      {/* Toggle Button (only visible when not on dashboard) */}
+      {!isDashboard && (
+        <div className="flex justify-end p-2">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
+            {shouldExpand ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </button>
         </div>
+      )}
 
-        {/* Contatos */}
-        <NavLink to="/contacts" className={linkClass}>
-          <Phone className="mr-2" /> Contatos
-        </NavLink>
+      {/* Navigation */}
+      <nav className="flex-1 py-4">
+        <div className="space-y-1">
+          {menuItems.map((item) => (
+            <NavLink key={item.path} to={item.path} className={linkClass}>
+              <item.icon className={`w-5 h-5 ${shouldExpand ? "mr-3" : ""}`} />
+              {shouldExpand && (
+                <span className="font-medium">{item.label}</span>
+              )}
+            </NavLink>
+          ))}
+        </div>
 
-        {/* Relatórios */}
-        <NavLink to="/reports" className={linkClass}>
-          <BarChart2 className="mr-2" /> Relatórios
-        </NavLink>
+        {/* Coming Soon Section */}
+        {shouldExpand && (
+          <div className="mt-8 px-4">
+            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+              Em breve
+            </div>
+            <div className="space-y-1">
+              {comingSoonItems.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-center p-3 mx-2 text-gray-400 cursor-not-allowed opacity-50"
+                >
+                  <item.icon className="w-5 h-5 mr-3" />
+                  <span className="font-medium">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </nav>
 
-      {/* Alertas */}
-      <div className="p-4 border-t border-gray-200">
+      {/* Alerts Section */}
+      <div className="border-t border-gray-200 p-4">
         <button
-          onClick={() => {}}
-          className="flex items-center w-full p-2 hover:bg-gray-100 rounded"
+          className={`flex items-center w-full p-3 text-gray-600 hover:bg-gray-100 hover:text-gray-800 rounded-lg transition-colors ${
+            !shouldExpand ? "justify-center" : ""
+          }`}
         >
-          <BellOff className="mr-2" /> Alertas
+          <div className="relative">
+            <Bell className={`w-5 h-5 ${shouldExpand ? "mr-3" : ""}`} />
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+              5
+            </span>
+          </div>
+          {shouldExpand && <span className="font-medium">Alertas</span>}
         </button>
       </div>
     </aside>
