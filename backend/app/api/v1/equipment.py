@@ -1,6 +1,6 @@
-from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import List
 
 from backend.app import models, schemas
 from backend.app.core.dependencies import get_db
@@ -11,40 +11,39 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=schemas.EquipmentOut, status_code=status.HTTP_201_CREATED)
-def create_equipment(e: schemas.EquipmentCreate, db: Session = Depends(get_db)):
-    db_obj = models.Equipment(**e.dict())
-    db.add(db_obj)
+def create_equipment(data: schemas.EquipmentCreate, db: Session = Depends(get_db)):
+    eq = models.Equipment(**data.dict())
+    db.add(eq)
     db.commit()
-    db.refresh(db_obj)
-    return db_obj
+    db.refresh(eq)
+    return eq
 
 @router.get("/", response_model=List[schemas.EquipmentOut])
-def list_equipment(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return db.query(models.Equipment).offset(skip).limit(limit).all()
+def list_equipment(db: Session = Depends(get_db)):
+    return db.query(models.Equipment).all()
 
-@router.get("/{eq_id}", response_model=schemas.EquipmentOut)
-def get_equipment(eq_id: int, db: Session = Depends(get_db)):
-    obj = db.query(models.Equipment).get(eq_id)
-    if not obj:
+@router.get("/{equipment_id}", response_model=schemas.EquipmentOut)
+def get_equipment(equipment_id: int, db: Session = Depends(get_db)):
+    eq = db.get(models.Equipment, equipment_id)
+    if not eq:
         raise HTTPException(status_code=404, detail="Equipamento não encontrado")
-    return obj
+    return eq
 
-@router.put("/{eq_id}", response_model=schemas.EquipmentOut)
-def update_equipment(eq_id: int, upd: schemas.EquipmentUpdate, db: Session = Depends(get_db)):
-    obj = db.query(models.Equipment).get(eq_id)
-    if not obj:
+@router.put("/{equipment_id}", response_model=schemas.EquipmentOut)
+def update_equipment(equipment_id: int, update: schemas.EquipmentUpdate, db: Session = Depends(get_db)):
+    eq = db.get(models.Equipment, equipment_id)
+    if not eq:
         raise HTTPException(status_code=404, detail="Equipamento não encontrado")
-    for k,v in upd.dict(exclude_unset=True).items():
-        setattr(obj, k, v)
+    for k, v in update.dict(exclude_unset=True).items():
+        setattr(eq, k, v)
     db.commit()
-    db.refresh(obj)
-    return obj
+    db.refresh(eq)
+    return eq
 
-@router.delete("/{eq_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_equipment(eq_id: int, db: Session = Depends(get_db)):
-    obj = db.query(models.Equipment).get(eq_id)
-    if not obj:
+@router.delete("/{equipment_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_equipment(equipment_id: int, db: Session = Depends(get_db)):
+    eq = db.get(models.Equipment, equipment_id)
+    if not eq:
         raise HTTPException(status_code=404, detail="Equipamento não encontrado")
-    db.delete(obj)
+    db.delete(eq)
     db.commit()
-    return

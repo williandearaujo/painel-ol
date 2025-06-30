@@ -5,7 +5,7 @@ import Footer from "./Footer"
 
 export default function PrivateLayout() {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background text-foreground">
       <Sidebar />
       <div className="flex flex-col flex-1">
         <Header />

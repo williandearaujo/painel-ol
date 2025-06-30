@@ -1,12 +1,9 @@
-# backend/app/models.py
-
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, JSON, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from typing import Optional
-
 from backend.app.core.database import Base
 
+# --- Usuários ---
 class User(Base):
     __tablename__ = "users"
 
@@ -17,6 +14,7 @@ class User(Base):
     is_superuser = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+# --- Clientes ---
 class Client(Base):
     __tablename__ = "clients"
 
@@ -30,12 +28,21 @@ class Client(Base):
     classification = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+# --- Analistas ---
 class Analyst(Base):
     __tablename__ = "analysts"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False, index=True)
-    entry_date = Column(DateTime, nullable=False)
+
+    # campos usados no frontend atual
+    email = Column(String, nullable=True)
+    role = Column(String, nullable=True)
+    notes = Column(String, nullable=True)
+    active = Column(Boolean, default=True)
+
+    # campos adicionais mantidos
+    entry_date = Column(DateTime, nullable=True)
     rg = Column(String, nullable=True)
     cpf = Column(String, nullable=True, unique=True, index=True)
     phone_personal = Column(String, nullable=True)
@@ -49,20 +56,23 @@ class Analyst(Base):
     last_raise_date = Column(DateTime, nullable=True)
     is_active = Column(Boolean, default=True)
     termination_date = Column(DateTime, nullable=True)
+
     created_at = Column(DateTime, default=datetime.utcnow)
 
+# --- Tarefas ---
 class Task(Base):
     __tablename__ = "tasks"
 
     id = Column(Integer, primary_key=True, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
     responsible = Column(String, nullable=False)
     description = Column(String, nullable=False)
     status = Column(String, nullable=False, index=True)
     planned_completion = Column(DateTime, nullable=True)
     real_completion = Column(DateTime, nullable=True)
     observations = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
+# --- Fornecedores ---
 class Supplier(Base):
     __tablename__ = "suppliers"
 
@@ -75,6 +85,7 @@ class Supplier(Base):
     status = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+# --- Equipamentos ---
 class Equipment(Base):
     __tablename__ = "equipment"
 
@@ -88,6 +99,7 @@ class Equipment(Base):
     access_url = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+# --- Links ---
 class Link(Base):
     __tablename__ = "links"
 
@@ -99,6 +111,7 @@ class Link(Base):
     url = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+# --- Contatos ---
 class Contact(Base):
     __tablename__ = "contacts"
 

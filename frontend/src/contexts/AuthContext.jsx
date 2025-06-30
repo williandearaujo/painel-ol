@@ -1,29 +1,36 @@
-// src/contexts/AuthContext.jsx
-import React, { createContext, useState, useEffect } from "react";
-import { saveToken, getToken, removeToken, isLoggedIn } from "../services/auth";
+import { createContext, useContext, useState, useEffect } from "react"
+import { authService, getToken } from "@/services/auth"
 
-export const AuthContext = createContext();
+const AuthContext = createContext()
 
-export function AuthProvider({ children }) {
-  const [userToken, setUserToken] = useState(getToken());
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null)
+
+  const loadUser = async () => {
+    const token = getToken()
+    if (!token) {
+      setUser(null)
+      return
+    }
+
+    try {
+      const data = await authService.me()
+      setUser(data)
+    } catch (error) {
+      console.error("Erro ao carregar usuário:", error)
+      setUser(null)
+    }
+  }
 
   useEffect(() => {
-    setUserToken(getToken());
-  }, []);
-
-  const loginUser = (token) => {
-    saveToken(token);
-    setUserToken(token);
-  };
-
-  const logoutUser = () => {
-    removeToken();
-    setUserToken(null);
-  };
+    loadUser()
+  }, [])
 
   return (
-    <AuthContext.Provider value={{ token: userToken, loginUser, logoutUser, isAuthenticated: isLoggedIn() }}>
+    <AuthContext.Provider value={{ user, setUser }}>
       {children}
     </AuthContext.Provider>
-  );
+  )
 }
+
+export const useAuth = () => useContext(AuthContext)

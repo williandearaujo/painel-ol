@@ -1,8 +1,6 @@
-# backend/app/schemas.py
-
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 # --- Autenticação / Usuário ---
 class UserBase(BaseModel):
@@ -59,40 +57,20 @@ class ClientOut(ClientBase):
 # --- Analistas ---
 class AnalystBase(BaseModel):
     name: str
-    entry_date: datetime
-    rg: Optional[str] = None
-    cpf: Optional[str] = None
-    phone_personal: Optional[str] = None
-    phone_work: Optional[str] = None
-    spouse: Optional[str] = None
-    children: Optional[list] = None
-    gender: Optional[str] = None
-    position: Optional[str] = None
-    seniority: Optional[str] = None
-    salary: Optional[str] = None
-    last_raise_date: Optional[datetime] = None
-    is_active: Optional[bool] = True
-    termination_date: Optional[datetime] = None
+    email: Optional[EmailStr] = None
+    role: Optional[str] = None
+    notes: Optional[str] = None
+    active: Optional[bool] = True
 
 class AnalystCreate(AnalystBase):
     pass
 
 class AnalystUpdate(BaseModel):
     name: Optional[str]
-    entry_date: Optional[datetime]
-    rg: Optional[str]
-    cpf: Optional[str]
-    phone_personal: Optional[str]
-    phone_work: Optional[str]
-    spouse: Optional[str]
-    children: Optional[list]
-    gender: Optional[str]
-    position: Optional[str]
-    seniority: Optional[str]
-    salary: Optional[str]
-    last_raise_date: Optional[datetime]
-    is_active: Optional[bool]
-    termination_date: Optional[datetime]
+    email: Optional[EmailStr]
+    role: Optional[str]
+    notes: Optional[str]
+    active: Optional[bool]
 
 class AnalystOut(AnalystBase):
     id: int

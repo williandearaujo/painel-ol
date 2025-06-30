@@ -1,37 +1,20 @@
-// src/services/auth.js
-import API from "./api";
+import api from "./api"
 
-const TOKEN_KEY = "access_token";
+export const authService = {
+  login: async (email, password) => {
+    const params = new URLSearchParams()
+    params.append("username", email)
+    params.append("password", password)
+    const response = await api.post("/token", params)
+    return response.data
+  },
 
-export function saveToken(token) {
-  localStorage.setItem(TOKEN_KEY, token);
+  me: async () => {
+    const response = await api.get("/users/me")
+    return response.data
+  },
 }
 
-export function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
+export const getToken = () => {
+  return localStorage.getItem("token")
 }
-
-export function removeToken() {
-  localStorage.removeItem(TOKEN_KEY);
-}
-
-export async function login(email, password) {
-  const params = new URLSearchParams();
-  params.append("username", email);
-  params.append("password", password);
-  const resp = await API.post("/token", params, {
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  });
-  return resp.data.access_token;
-}
-
-export function isLoggedIn() {
-  return Boolean(getToken());
-}
-
-// Injetar automaticamente o header Authorization
-API.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
