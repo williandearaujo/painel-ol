@@ -2,3 +2,24 @@ modules = ["nodejs-20", "python-3.12", "web"]
 
 [nix]
 channel = "stable-24_05"
+
+[workflows]
+runButton = "Frontend Dev"
+
+[[workflows.workflow]]
+name = "Frontend Dev"
+author = 44382634
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd frontend && npm install && npm run dev -- --host 0.0.0.0 --port 5000"
+
+[[workflows.workflow]]
+name = "Backend Dev"
+author = 44382634
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && pip install -r requirements.txt && python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
