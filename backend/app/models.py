@@ -115,3 +115,14 @@ class Contact(Base):
     status = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class Certification(Base):
+    __tablename__ = "certifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    analyst_name = Column(String, nullable=False)
+    certification_name = Column(String, nullable=False)
+    certification_date = Column(DateTime, nullable=False)
+    expiry_date = Column(DateTime, nullable=True)
+    status = Column(String, default="active")
+    created_at = Column(DateTime, default=datetime.utcnow)

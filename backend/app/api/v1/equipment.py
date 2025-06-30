@@ -1,3 +1,4 @@
+
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -20,6 +21,13 @@ def create_equipment(equipment: schemas.EquipmentCreate, db: Session = Depends(g
     db.commit()
     db.refresh(db_equipment)
     return db_equipment
+
+@router.get("/{equipment_id}", response_model=schemas.EquipmentOut)
+def read_equipment_item(equipment_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    equipment = db.query(models.Equipment).filter(models.Equipment.id == equipment_id).first()
+    if equipment is None:
+        raise HTTPException(status_code=404, detail="Equipment not found")
+    return equipment
 
 @router.delete("/{equipment_id}")
 def delete_equipment(equipment_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):

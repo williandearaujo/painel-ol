@@ -1,3 +1,4 @@
+
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -22,7 +23,7 @@ def create_analyst(analyst: schemas.AnalystCreate, db: Session = Depends(get_db)
     return db_analyst
 
 @router.put("/{analyst_id}", response_model=schemas.AnalystOut)
-def update_analyst(analyst_id: int, upd: schemas.AnalystUpdate, db: Session = Depends(get_db)):
+def update_analyst(analyst_id: int, upd: schemas.AnalystUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     obj = db.query(models.Analyst).get(analyst_id)
     if not obj:
         raise HTTPException(status_code=404, detail="Analista não encontrado")

@@ -1,3 +1,4 @@
+
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -20,6 +21,13 @@ def create_link(link: schemas.LinkCreate, db: Session = Depends(get_db), current
     db.commit()
     db.refresh(db_link)
     return db_link
+
+@router.get("/{link_id}", response_model=schemas.LinkOut)
+def read_link(link_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    link = db.query(models.Link).filter(models.Link.id == link_id).first()
+    if link is None:
+        raise HTTPException(status_code=404, detail="Link not found")
+    return link
 
 @router.delete("/{link_id}")
 def delete_link(link_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
