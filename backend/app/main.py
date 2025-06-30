@@ -1,19 +1,20 @@
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.core.database import engine, Base
-from backend.app.api.v1.auth import router as auth_router
-from backend.app.api.v1.users import router as users_router
-from backend.app.api.v1.clients import router as clients_router
-from backend.app.api.v1.analysts import router as analysts_router
-from backend.app.api.v1.tasks import router as tasks_router
-from backend.app.api.v1.suppliers import router as suppliers_router
-from backend.app.api.v1.equipment import router as equipment_router
-from backend.app.api.v1.links import router as links_router
-from backend.app.api.v1.contacts import router as contacts_router
-from backend.app.api.v1.reports import router as reports_router
+from .core.database import engine, Base
+from .api.v1.auth import router as auth_router
+from .api.v1.users import router as users_router
+from .api.v1.clients import router as clients_router
+from .api.v1.analysts import router as analysts_router
+from .api.v1.tasks import router as tasks_router
+from .api.v1.suppliers import router as suppliers_router
+from .api.v1.equipment import router as equipment_router
+from .api.v1.links import router as links_router
+from .api.v1.contacts import router as contacts_router
+from .api.v1.reports import router as reports_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
