@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from typing import Optional
 
-from backend.app.core.database import Base
+from .core.database import Base
 
 class User(Base):
     __tablename__ = "users"
