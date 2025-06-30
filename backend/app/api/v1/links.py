@@ -1,50 +1,39 @@
+
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from backend.app import models, schemas
-from backend.app.core.dependencies import get_db
+from ...core.database import get_db
+from ...core.dependencies import get_current_user
+from ... import models, schemas
 
-router = APIRouter(
-    prefix="/links",
-    tags=["Links"],
-)
-
-@router.post("/", response_model=schemas.LinkOut, status_code=status.HTTP_201_CREATED)
-def create_link(l: schemas.LinkCreate, db: Session = Depends(get_db)):
-    db_obj = models.Link(**l.dict())
-    db.add(db_obj)
-    db.commit()
-    db.refresh(db_obj)
-    return db_obj
+router = APIRouter(prefix="/links", tags=["Links"])
 
 @router.get("/", response_model=List[schemas.LinkOut])
-def list_links(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return db.query(models.Link).offset(skip).limit(limit).all()
+def read_links(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    links = db.query(models.Link).offset(skip).limit(limit).all()
+    return links
+
+@router.post("/", response_model=schemas.LinkOut)
+def create_link(link: schemas.LinkCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    db_link = models.Link(**link.dict())
+    db.add(db_link)
+    db.commit()
+    db.refresh(db_link)
+    return db_link
 
 @router.get("/{link_id}", response_model=schemas.LinkOut)
-def get_link(link_id: int, db: Session = Depends(get_db)):
-    obj = db.query(models.Link).get(link_id)
-    if not obj:
-        raise HTTPException(status_code=404, detail="Link não encontrado")
-    return obj
+def read_link(link_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    link = db.query(models.Link).filter(models.Link.id == link_id).first()
+    if link is None:
+        raise HTTPException(status_code=404, detail="Link not found")
+    return link
 
-@router.put("/{link_id}", response_model=schemas.LinkOut)
-def update_link(link_id: int, upd: schemas.LinkUpdate, db: Session = Depends(get_db)):
-    obj = db.query(models.Link).get(link_id)
-    if not obj:
-        raise HTTPException(status_code=404, detail="Link não encontrado")
-    for k,v in upd.dict(exclude_unset=True).items():
-        setattr(obj, k, v)
+@router.delete("/{link_id}")
+def delete_link(link_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    link = db.query(models.Link).filter(models.Link.id == link_id).first()
+    if link is None:
+        raise HTTPException(status_code=404, detail="Link not found")
+    db.delete(link)
     db.commit()
-    db.refresh(obj)
-    return obj
-
-@router.delete("/{link_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_link(link_id: int, db: Session = Depends(get_db)):
-    obj = db.query(models.Link).get(link_id)
-    if not obj:
-        raise HTTPException(status_code=404, detail="Link não encontrado")
-    db.delete(obj)
-    db.commit()
-    return
+    return {"message": "Link deleted successfully"}

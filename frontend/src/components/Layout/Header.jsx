@@ -223,4 +223,8 @@ const Header = ({ onSidebarToggle, sidebarOpen }) => {
   );
 };
 
+<<<<<<< HEAD
 export default Header;
+=======
+export default Header;
+>>>>>>> 8c88711f17b8648c5f5172f907f5debec38118be

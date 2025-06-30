@@ -1,26 +1,21 @@
+<<<<<<< HEAD
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+=======
+
+from typing import List
+from fastapi import APIRouter, Depends, HTTPException
+>>>>>>> 8c88711f17b8648c5f5172f907f5debec38118be
 from sqlalchemy.orm import Session
 
-from backend.app import models, schemas
-from backend.app.core.dependencies import get_db
+from ...core.database import get_db
+from ...core.dependencies import get_current_user
+from ... import models, schemas
 
-router = APIRouter(
-    prefix="/analysts",
-    tags=["Analysts"],
-)
-
-@router.post("/", response_model=schemas.AnalystOut, status_code=status.HTTP_201_CREATED)
-def create_analyst(a: schemas.AnalystCreate, db: Session = Depends(get_db)):
-    if a.cpf and db.query(models.Analyst).filter(models.Analyst.cpf == a.cpf).first():
-        raise HTTPException(status_code=400, detail="CPF já cadastrado")
-    db_obj = models.Analyst(**a.dict())
-    db.add(db_obj)
-    db.commit()
-    db.refresh(db_obj)
-    return db_obj
+router = APIRouter(prefix="/analysts", tags=["Analysts"])
 
 @router.get("/", response_model=List[schemas.AnalystOut])
+<<<<<<< HEAD
 def list_analysts(
     skip: int = 0,
     limit: int = 100,
@@ -48,6 +43,23 @@ def get_analyst(analyst_id: int, db: Session = Depends(get_db)):
 @router.put("/{analyst_id}", response_model=schemas.AnalystOut)
 def update_analyst(analyst_id: int, upd: schemas.AnalystUpdate, db: Session = Depends(get_db)):
     obj = db.get(models.Analyst, analyst_id)
+=======
+def read_analysts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    analysts = db.query(models.Analyst).offset(skip).limit(limit).all()
+    return analysts
+
+@router.post("/", response_model=schemas.AnalystOut)
+def create_analyst(analyst: schemas.AnalystCreate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    db_analyst = models.Analyst(**analyst.dict())
+    db.add(db_analyst)
+    db.commit()
+    db.refresh(db_analyst)
+    return db_analyst
+
+@router.put("/{analyst_id}", response_model=schemas.AnalystOut)
+def update_analyst(analyst_id: int, upd: schemas.AnalystUpdate, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    obj = db.query(models.Analyst).get(analyst_id)
+>>>>>>> 8c88711f17b8648c5f5172f907f5debec38118be
     if not obj:
         raise HTTPException(status_code=404, detail="Analista não encontrado")
     for k, v in upd.dict(exclude_unset=True).items():
@@ -56,6 +68,7 @@ def update_analyst(analyst_id: int, upd: schemas.AnalystUpdate, db: Session = De
     db.refresh(obj)
     return obj
 
+<<<<<<< HEAD
 @router.delete("/{analyst_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_analyst(analyst_id: int, db: Session = Depends(get_db)):
     obj = db.get(models.Analyst, analyst_id)
@@ -63,3 +76,13 @@ def delete_analyst(analyst_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Analista não encontrado")
     db.delete(obj)
     db.commit()
+=======
+@router.delete("/{analyst_id}")
+def delete_analyst(analyst_id: int, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    analyst = db.query(models.Analyst).filter(models.Analyst.id == analyst_id).first()
+    if analyst is None:
+        raise HTTPException(status_code=404, detail="Analyst not found")
+    db.delete(analyst)
+    db.commit()
+    return {"message": "Analyst deleted successfully"}
+>>>>>>> 8c88711f17b8648c5f5172f907f5debec38118be

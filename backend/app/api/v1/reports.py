@@ -1,25 +1,27 @@
-# backend/app/api/v1/reports.py
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from backend.app.core.database import get_db
-from backend.app import models
+from ...core.database import get_db
+from ...core.dependencies import get_current_user
+from ... import models, schemas
 
-router = APIRouter(
-    prefix="/reports",
-    tags=["Reports"],
-)
+router = APIRouter(prefix="/reports", tags=["Reports"])
 
-@router.get("/dashboard", summary="Contagem de registros para dashboard")
-def get_dashboard_counts(db: Session = Depends(get_db)):
-    return {
-        "clients":     db.query(models.Client).count(),
-        "analysts":    db.query(models.Analyst).count(),
-        "tasks":       db.query(models.Task).count(),
-        "suppliers":   db.query(models.Supplier).count(),
-        "equipment":   db.query(models.Equipment).count(),
-        "links":       db.query(models.Link).count(),
-        "contacts":    db.query(models.Contact).count(),
-        "certifications": db.query(models.Certification).count(),
-    }
+@router.get("/dashboard-counts", response_model=schemas.DashboardCounts)
+def get_dashboard_counts(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
+    total_clients = db.query(models.Client).count()
+    total_analysts = db.query(models.Analyst).count()
+    total_tasks = db.query(models.Task).count()
+    total_suppliers = db.query(models.Supplier).count()
+    total_equipment = db.query(models.Equipment).count()
+    total_contacts = db.query(models.Contact).count()
+    
+    return schemas.DashboardCounts(
+        total_clients=total_clients,
+        total_analysts=total_analysts,
+        total_tasks=total_tasks,
+        total_suppliers=total_suppliers,
+        total_equipment=total_equipment,
+        total_contacts=total_contacts
+    )
