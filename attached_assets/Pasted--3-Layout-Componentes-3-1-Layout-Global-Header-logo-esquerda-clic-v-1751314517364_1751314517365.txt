@@ -1,0 +1,89 @@
+
+---
+
+## 3. Layout & Componentes
+
+### 3.1. Layout Global
+- **Header**: logo à esquerda (clicável → home), pesquisa global, avatar (configurações, tema claro/escuro, logout).
+- **Sidebar**: expandido em dashboard, recolhido nas demais páginas (hover/​toggle expand).
+- **Footer**: rodapé simples com versão e copyright.
+
+### 3.2. Cores & Tipografia
+- Paleta neutra (cinza, azul-azulado, preto/branco), evitar verde.  
+- Hierarquia: títulos `text-xl`/`2xl`, subtítulos `text-lg`, texto `text-base`.
+
+---
+
+## 4. Páginas & Campos
+
+| Página         | Campos & Comportamento                                                                                                                        |
+|----------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **Login**      | email, senha, botão “Entrar” → API `/token` (form-urlencoded), armazena token em `localStorage` ou `sessionStorage`.                            |
+| **Dashboard**  | cards: total de clientes, analistas, fornecedores, tarefas, equipamentos, certificações, links; gráfico de barras de feedbacks; alerts pendentes. |
+| **Clientes**   | Nome, Nome Fantasia, CNPJ, endereço, telefone; AM (+add/remove), Pré-vendas (+add/remove); classificação (Top/Prata/Comum) com regra de visitas;   |
+|                | feedback positivo/​melhoria (timestamp, tally, score visual “carinhas”); Última visita, Visita agendada (alerta se fora do padrão).              |
+|                | abas: Projetos (nome+link), Contratos (título, início, fim, link contrato/escopo, alerta 5m antes, botão renovar/hold), horas (futuro).           |
+| **Analistas**  | Nome, RG, CPF, data de entrada, telefones, cônjuge, filhos (JSON), gênero, cargo, senioridade; salário/último aumento (campos ocultos “olho”);    |
+|                | feedbacks (+add timestamps, positivo/​melhoria, lançado no CoBlue sim/não); score desempenho.                                                    |
+| **Tarefas**    | Responsável (select analista), descrição, status (dropdown), previsão/real de conclusão, observações; filtros por status, responsável.           |
+| **Fornecedores**| Nome, CNPJ, endereço, telefone, contato, status (ativo/inativo); CRUD aberto a todos.                                                          |
+| **Equipamentos**| Cliente (dropdown auto-OL Tecnologia), status, host, descrição, observação, tipo (SSH/RDP/Hardware dropdown), link de acesso + botão “Acessar”. |
+| **Certificações**| Nome, emissor, validade (alerta 30d antes); upload futuro de certificados.                                                                    |
+| **Links**      | Pasta > Subpasta (menu em cascata +add/remove), Nome amigável, URL capturada (favicon avatar), botão “Ir”.                                      |
+| **Contatos**   | Classificação (cliente/fornecedor/OL), entidade pai, nome, email, telefone, cargo, escalonamento, número escalonamento, tel. alt., status.     |
+| **Relatórios** | Filtros por recurso e data; endpoint `/reports/dashboard-counts` + endpoints personalizados (export CSV).                                       |
+| **Alertas**    | BellOff no sidebar; lista de notificações (visitas não agendadas, contratos vencendo, horas acabando, certificações expirando).                 |
+
+---
+
+## 5. Perfis & Permissões
+
+| Perfil    | Acesso                              |
+|-----------|-------------------------------------|
+| **Admin** | full CRUD em tudo                   |
+| **Gerente**| CRUD em clientes, analistas da equipe, tarefas, fornecedores, equipamentos, certificações, links, contatos; relatórios próprios. |
+| **Analista**| CRUD em próprias tarefas; leitura restrita de clientes/​fornecedores/​contatos atrelados.            |
+
+- **FastAPI**: `Depends(get_current_user)`, `@router.dependency_overrides`, 403 unauthorized.
+- **Frontend**: `AuthContext`, `PrivateRoute`, menus condicionais.
+
+---
+
+## 6. Banco de Dados & Migrations
+
+- **SQLAlchemy models**: todos os campos acima.
+- **Pydantic schemas**: correspondentes, `Config: from_attributes=True`.
+- **Alembic**: migrations automáticas (`alembic revision --autogenerate`).
+- **SQLite** em dev (`backend/db.sqlite`), PostgreSQL em prod (env var `DATABASE_URL`).
+
+---
+
+## 7. Integrações Futuras
+
+- **Jira**: webhooks + Celery para importar issues/projetos.
+- **Calendário**: fetch feriados Brasil/SP (API pública) + agendamento de férias/PDI/Day off com cores por equipe.
+- **Armazenamento**: arquivos de contratos/escopos → S3 / local.
+- **Notificações push/email** no backend via Celery + SMTP / serviços externos.
+
+---
+
+## 8. Fluxo de Desenvolvimento & Versionamento
+
+1. **Iniciar**  
+   - `git init` + `gh repo create painel-ol --public`  
+   - Criar venv (`python -m venv .venv`) + `poetry` opcional.  
+2. **Banco**  
+   - Configurar `.env`, testar `uvicorn backend.app.main:app --reload`.  
+   - Criar primeiras migrations e rodar.  
+3. **Frontend**  
+   - `npm create vite@latest frontend -- --template react`  
+   - `npm install`, `tailwindcss init -p`, configurar `vite.config.js`.  
+4. **CI/CD**  
+   - GitHub Actions: lint (flake8/​isort), testes (pytest), build/frontend.  
+5. **Deploy**  
+   - Dockerfile multi-stage, docker-compose para backend+frontend+db.  
+   - Deploy automático em AWS ECS / Heroku / DigitalOcean.
+
+---
+
+> **Próximos Passos**: preparar skeleton com pastas e arquivos vazios e começar a implementar página a página conforme documento acima.
